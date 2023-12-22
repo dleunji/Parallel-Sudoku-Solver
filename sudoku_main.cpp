@@ -78,7 +78,7 @@ int main(int argc, char **argv)
 ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝     ╚══════╝ ╚═════╝ ╚══════╝ ╚═══╝  ╚══════╝╚═╝  ╚═╝
 	)"
 		<< "\n"
-		<< "developed by Hua-Ming Huang (version: " << VERSION << ")"
+		<< "developed by Hua-Ming Huang (version: " << ")"
 		<< "\n\n\n";
 
 	// validate command-line arguments

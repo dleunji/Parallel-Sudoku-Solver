@@ -9,12 +9,14 @@ class SudokuSolver_CudaBruteForce : public SudokuSolver
 {
 private:
     SudokuBoardDeque _board_deque;
+    int *_boards;
 
 public:
     SudokuSolver_CudaBruteForce(SudokuBoard &board, bool print_message = true);
 
     // Divides one Sudoku problem into several simpler sub-problems and push them to the end of board deque
     void bootstrap();
+    void bootstrap_cuda(int numberOfBoards);
     void bootstrap(SudokuBoardDeque &boardDeque, int indexOfRows);
 
     // Solves the given Sudoku board using parallel brute force algorithm
