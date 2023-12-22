@@ -1,6 +1,5 @@
 #include "SudokuSolver_CudaBruteForce.hpp"
 #include "SudokuSolver_SequentialBruteForce.hpp"
-#include "SudokuSolver_CudaBruteForce_kernel.hpp"
 #include "termcolor.hpp"
 #include <iostream>
 #include <vector>
@@ -87,21 +86,18 @@ void SudokuSolver_CudaBruteForce::solve_kernel_1()
 {
     // push the board onto the board deque as the first element
     _board_deque.push_back(_board);
+    int numberOfBoards2 = _board.get_board_size();
 
+    bootstrap_cuda(numberOfBoards2);
     // ensure some level of bootstrapping
-//     int num_bootstraps = omp_get_num_threads();
-// #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
-//     for (int i = 0; i < num_bootstraps; ++i)
-//     {
-//         bootstrap();
-//     }
-      int numberOfBoards = _board.get_board_size();
+    int num_bootstraps = omp_get_num_threads();
+#pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
+    for (int i = 0; i < num_bootstraps; ++i)
+    {
+        bootstrap();
+    }
 
-      bootstrap_cuda(numberOfBoards);
-
-
-
-//     int numberOfBoards = _board_deque.size();
+    int numberOfBoards = _board_deque.size();
     // int num_bootstraps = _board.get_board_size();
 
 
@@ -322,6 +318,7 @@ void SudokuSolver_CudaBruteForce::solve_bruteforce_par(SudokuBoard &board, int r
 
 void SudokuSolver_CudaBruteForce::bootstrap_cuda(int numberOfBoards)
 {
+    int found = 0;
     _boards = (int *) malloc(numberOfBoards * _board.get_board_size() * _board.get_board_size() * sizeof(int));
-    call_solve(numberOfBoards, _board.get_board_size() * _board.get_board_size());
+    call_backtrack(_boards, numberOfBoards, _board.get_box_size(), _board.get_board_size(), found);
 }

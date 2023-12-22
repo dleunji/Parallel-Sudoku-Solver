@@ -4,6 +4,7 @@
 #include "SudokuBoard.hpp"
 #include "SudokuSolver.hpp"
 #include "SudokuBoardDeque.hpp"
+#include "SudokuSolver_CudaBruteForce_kernel.cuh"
 
 class SudokuSolver_CudaBruteForce : public SudokuSolver
 {
