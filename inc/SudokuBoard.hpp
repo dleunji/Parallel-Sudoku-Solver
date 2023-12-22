@@ -1,13 +1,11 @@
 #ifndef SUDOKUBOARD_HPP
 #define SUDOKUBOARD_HPP
 
-
 #include <vector>
 #include <string>
 #include <iostream>
 #include <variant>
 #include <set>
-
 
 using Board = std::vector<std::vector<int>>;
 // Size: _BOARD_SIZE * _BOARD_SIZE
@@ -18,7 +16,6 @@ using CoverMatrix = std::vector<std::vector<int>>;
 using MultiType = std::variant<int, std::set<int>>;
 using StateMatrix = std::vector<std::vector<MultiType>>;
 // Size: _BOARD_SIZE * _BOARD_SIZE
-
 
 class SudokuBoard
 {
@@ -31,24 +28,24 @@ private:
 	int _BOARD_SIZE;
 	int _MIN_VALUE = 1;
 	int _MAX_VALUE = _BOARD_SIZE;
-	int _NUM_CONSTRAINTS = 4;   // 4 constraints : cell, row, column, box
+	int _NUM_CONSTRAINTS = 4; // 4 constraints : cell, row, column, box
 	int _INIT_NUM_EMPTY_CELLS;
 	int _EMPTY_CELL_VALUE = 0;
 	std::string _EMPTY_CELL_CHARACTER = ".";
 	int _COVER_MATRIX_START_INDEX = 1;
-	
+
 public:
 	// Returns a 2D vector reading from a file containing the initial Sudoku board in space separated format
 	// (empty cells are represented by 0s)
-	const Board read_input(const std::string& filename);
+	const Board read_input(const std::string &filename);
 
 	// Writes solution to a text file (solution.txt)
-	friend void write_output(const SudokuBoard& solutionBoard);
+	friend void write_output(const SudokuBoard &solutionBoard);
 
 	SudokuBoard() = default;
-	SudokuBoard(const std::string& filename);
+	SudokuBoard(const std::string &filename);
 	// copy constructor
-	SudokuBoard(const SudokuBoard& anotherSudokuBoard);
+	SudokuBoard(const SudokuBoard &anotherSudokuBoard);
 
 	void set_board_data(int row, int col, int num) { _board_data[row][col] = num; }
 	int get_board_data(int row, int col) const { return _board_data[row][col]; }
@@ -70,30 +67,29 @@ public:
 	std::vector<int> getNumbersInCol(int indexOfColumns) const;
 
 	// copy-assignment operator
-	SudokuBoard& operator= (const SudokuBoard& another_sudokuboard);
-	
+	SudokuBoard &operator=(const SudokuBoard &another_sudokuboard);
+
 	// Prints the input Sudoku board
-    friend std::ostream& operator<< (std::ostream &out, const SudokuBoard& board);
-	
+	friend std::ostream &operator<<(std::ostream &out, const SudokuBoard &board);
+
 	// Prints the output Sudoku board
-	friend void print_board(const SudokuBoard& board);
+	friend void print_board(const SudokuBoard &board);
 
 	// Transforms the Sudoku problem into an instance of exact cover problem, i.e.,
 	// models a Sudoku grid in the form of a cover matrix with size:
 	// (_BOARD_SIZE * _BOARD_SIZE * _MAX_VALUE) * (BOARD_SIZE * _BOARD_SIZE * _NUM_CONSTRAINTS)
 	int indexInCoverMatrix(int row, int col, int num);
-	int createBoxConstraints(CoverMatrix& coverMatrix, int header);
-	int createColumnConstraints(CoverMatrix& coverMatrix, int header);
-	int createRowConstraints(CoverMatrix& coverMatrix, int header);
-	int createCellConstraints(CoverMatrix& coverMatrix, int header);
-	void createCoverMatrix(CoverMatrix& coverMatrix);
-	void convertToCoverMatrix(CoverMatrix& coverMatrix);
+	int createBoxConstraints(CoverMatrix &coverMatrix, int header);
+	int createColumnConstraints(CoverMatrix &coverMatrix, int header);
+	int createRowConstraints(CoverMatrix &coverMatrix, int header);
+	int createCellConstraints(CoverMatrix &coverMatrix, int header);
+	void createCoverMatrix(CoverMatrix &coverMatrix);
+	void convertToCoverMatrix(CoverMatrix &coverMatrix);
 
 	// Adds state information to the Sudoku board
 	// by replacing empty cell, i.e., 0, with a set of possible values
-	void createStateMatrix(StateMatrix& stateMatrix);
-	void convertToStateMatrix(StateMatrix& stateMatrix);
+	void createStateMatrix(StateMatrix &stateMatrix);
+	void convertToStateMatrix(StateMatrix &stateMatrix);
 };
 
-
-#endif   // SUDOKUBOARD_HPP
+#endif // SUDOKUBOARD_HPP
