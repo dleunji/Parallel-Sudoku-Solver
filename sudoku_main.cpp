@@ -78,7 +78,8 @@ int main(int argc, char **argv)
 ╚══════╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝     ╚══════╝ ╚═════╝ ╚══════╝ ╚═══╝  ╚══════╝╚═╝  ╚═╝
 	)"
 		<< "\n"
-		<< "developed by Hua-Ming Huang (version: " << ")"
+		<< "developed by Hua-Ming Huang (version: "
+		<< ")"
 		<< "\n\n\n";
 
 	// validate command-line arguments
@@ -123,7 +124,7 @@ int main(int argc, char **argv)
 
 	int NUM_THREADS = 2;
 	int WRITE_TO_SOLUTION_TXT = 0;
-	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS)
+	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS || mode == MODES::CUDA_BRUTEFORCE)
 	{
 		NUM_THREADS = (argc >= 4) ? std::stoi(argv[3]) : 2;
 		WRITE_TO_SOLUTION_TXT = (argc >= 5) ? std::stoi(argv[4]) : 0;
@@ -145,7 +146,7 @@ int main(int argc, char **argv)
 #endif
 
 	auto solver = CreateSudokuSolver(mode, board);
-	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS)
+	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS || mode == MODES::CUDA_BRUTEFORCE)
 	{
 		omp_set_num_threads(NUM_THREADS);
 

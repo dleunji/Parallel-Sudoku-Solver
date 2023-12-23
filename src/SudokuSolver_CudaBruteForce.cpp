@@ -8,7 +8,7 @@
 SudokuSolver_CudaBruteForce::SudokuSolver_CudaBruteForce(SudokuBoard &board, bool print_message /*=true*/)
     : SudokuSolver(board)
 {
-    _mode = MODES::CUDA_BRUTEFORCE;
+    _mode = MODES::PARALLEL_BRUTEFORCE;
     if (print_message)
     {
         std::cout << "\n"
@@ -86,20 +86,41 @@ void SudokuSolver_CudaBruteForce::solve_kernel_1()
 {
     // push the board onto the board deque as the first element
     _board_deque.push_back(_board);
-    int numberOfBoards2 = _board.get_board_size();
 
-    bootstrap_cuda(numberOfBoards2);
     // ensure some level of bootstrapping
     int num_bootstraps = omp_get_num_threads();
+    int N = _board.get_board_size();
 #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
     for (int i = 0; i < num_bootstraps; ++i)
     {
         bootstrap();
     }
-
     int numberOfBoards = _board_deque.size();
-    // int num_bootstraps = _board.get_board_size();
+    _boards = (int *)malloc(numberOfBoards * N * N * sizeof(int));
 
+#pragma omp parallel for schedule(static) default(none) shared(numberOfBoards, _boards, N)
+    for (int i = 0; i < numberOfBoards; ++i)
+    {
+        int tid = omp_get_thread_num();
+        for (int j = 0; j < N; j++)
+        {
+            std::vector<int> row_vals = _board_deque[i].getNumbersInRow(j);
+            std::copy(row_vals.begin(), row_vals.end(), _boards + (i * N * N + j * N));
+        }
+    }
+
+    // for (int i = 0; i < numberOfBoards; i++)
+    // {
+    //     std::cout << "\n## Board: " << i << std::endl;
+    //     for (int row = 0; row < N; row++)
+    //     {
+    //         for (int col = 0; col < N; col++)
+    //         {
+    //             printf("%d ", _boards[i * N * N + row * N + col]);
+    //         }
+    //         printf("\n");
+    //     }
+    // }
 
     // For debugging
     // std::cout << "Number of Suodku boards on the board deque: " << numberOfBoards << "\n";
@@ -110,30 +131,30 @@ void SudokuSolver_CudaBruteForce::solve_kernel_1()
     // 	std::cout << "*****" << "\n";
     // }
 
-    std::vector<SudokuSolver_SequentialBruteForce> solvers;
+    //     std::vector<SudokuSolver_SequentialBruteForce> solvers;
 
-#pragma omp parallel for schedule(static) default(none) shared(numberOfBoards, solvers)
-    for (int indexOfBoard = 0; indexOfBoard < numberOfBoards; ++indexOfBoard)
-    {
-        solvers.push_back(SudokuSolver_SequentialBruteForce(_board_deque[indexOfBoard], false));
+    // #pragma omp parallel for schedule(static) default(none) shared(numberOfBoards, solvers)
+    //     for (int indexOfBoard = 0; indexOfBoard < numberOfBoards; ++indexOfBoard)
+    //     {
+    //         solvers.push_back(SudokuSolver_SequentialBruteForce(_board_deque[indexOfBoard], false));
 
-        // Note: break statement is not allowed in OpenMP, all iterations must be processed.
-        // The trick is to set a flag to true when the condition is satisfied, and leave the remaining iterations no longer having any work to do.
-        if (_solved)
-        {
-            continue;
-        }
+    //         // Note: break statement is not allowed in OpenMP, all iterations must be processed.
+    //         // The trick is to set a flag to true when the condition is satisfied, and leave the remaining iterations no longer having any work to do.
+    //         if (_solved)
+    //         {
+    //             continue;
+    //         }
 
-        solvers[indexOfBoard].set_mode(MODES::CUDA_BRUTEFORCE);
+    //         solvers[indexOfBoard].set_mode(MODES::PARALLEL_BRUTEFORCE);
 
-        solvers[indexOfBoard].solve();
+    //         solvers[indexOfBoard].solve();
 
-        if (solvers[indexOfBoard].get_status() == true)
-        {
-            _solved = true;
-            _solution = solvers[indexOfBoard].get_solution();
-        }
-    }
+    //         if (solvers[indexOfBoard].get_status() == true)
+    //         {
+    //             _solved = true;
+    //             _solution = solvers[indexOfBoard].get_solution();
+    //         }
+    //     }
 }
 
 void SudokuSolver_CudaBruteForce::solve_kernel_2()
@@ -313,12 +334,4 @@ void SudokuSolver_CudaBruteForce::solve_bruteforce_par(SudokuBoard &board, int r
     }
 
     _recursionDepth++;
-}
-
-
-void SudokuSolver_CudaBruteForce::bootstrap_cuda(int numberOfBoards)
-{
-    int found = 0;
-    _boards = (int *) malloc(numberOfBoards * _board.get_board_size() * _board.get_board_size() * sizeof(int));
-    call_backtrack(_boards, numberOfBoards, _board.get_box_size(), _board.get_board_size(), found);
 }
