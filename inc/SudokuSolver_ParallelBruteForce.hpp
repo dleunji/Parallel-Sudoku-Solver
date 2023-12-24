@@ -15,6 +15,7 @@ public:
 
 	// Divides one Sudoku problem into several simpler sub-problems and push them to the end of board deque
 	void bootstrap();
+	void bootstrap_openmp();
 	void bootstrap(SudokuBoardDeque &boardDeque, int indexOfRows);
 
 	// Solves the given Sudoku board using parallel brute force algorithm

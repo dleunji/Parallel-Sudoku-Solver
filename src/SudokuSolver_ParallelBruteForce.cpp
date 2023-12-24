@@ -51,6 +51,54 @@ void SudokuSolver_ParallelBruteForce::bootstrap()
 	_board_deque.pop_front();
 }
 
+void SudokuSolver_ParallelBruteForce::bootstrap_openmp()
+{
+	// if no start boards in the board deque, then return
+	if (_board_deque.size() == 0)
+	{
+		return;
+	}
+
+	SudokuBoard board;
+	bool valid = false;
+#pragma omp critical
+	{
+		if (_board_deque.size() > 0)
+		{
+			valid = true;
+			board = _board_deque.front();
+			_board_deque.pop_front();
+		}
+	}
+
+	if (!valid)
+		return;
+
+	if (checkIfAllFilled(board))
+	{
+		return;
+	}
+
+	Position empty_cell_pos = find_empty(board);
+
+	int row = empty_cell_pos.first;
+	int col = empty_cell_pos.second;
+
+	// fill in all possible numbers to the empty cell and then
+	// add the corresponding possible board of solution to the end of board deque
+	for (int num = board.get_min_value(); num <= board.get_max_value(); ++num)
+	{
+		if (isValid(board, num, empty_cell_pos))
+		{
+			board.set_board_data(row, col, num);
+#pragma omp critical
+			{
+				_board_deque.push_back(board);
+			}
+		}
+	}
+}
+
 void SudokuSolver_ParallelBruteForce::bootstrap(SudokuBoardDeque &boardDeque, int indexOfRows)
 {
 	// if no start boards in the board deque, then return
@@ -92,7 +140,7 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
 	for (int i = 0; i < num_bootstraps; ++i)
 	{
-		bootstrap();
+		bootstrap_openmp();
 	}
 
 	int numberOfBoards = _board_deque.size();
