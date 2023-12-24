@@ -43,6 +43,7 @@ public:
 	friend void write_output(const SudokuBoard &solutionBoard);
 
 	SudokuBoard() = default;
+	SudokuBoard(int n, int N, int *board_data);
 	SudokuBoard(const std::string &filename);
 	// copy constructor
 	SudokuBoard(const SudokuBoard &anotherSudokuBoard);

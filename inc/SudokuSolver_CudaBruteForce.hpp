@@ -16,6 +16,7 @@ public:
     SudokuSolver_CudaBruteForce(SudokuBoard &board, bool print_message = true);
 
     // Divides one Sudoku problem into several simpler sub-problems and push them to the end of board deque
+    void bootstrap_openmp();
     void bootstrap();
     void bootstrap(SudokuBoardDeque &boardDeque, int indexOfRows);
 
