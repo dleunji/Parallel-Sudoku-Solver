@@ -51,6 +51,57 @@ void SudokuSolver_CudaBruteForce::bootstrap()
     _board_deque.pop_front();
 }
 
+void SudokuSolver_CudaBruteForce::bootstrap_openmp()
+{
+    // printf("thread num: %d\n", omp_get_thread_num());
+    // if no start boards in the board deque, then return
+    if (_board_deque.size() == 0)
+    {
+        return;
+    }
+
+    SudokuBoard board;
+    bool valid = false;
+#pragma omp critical
+    {
+        if (_board_deque.size() > 0)
+        {
+            valid = true;
+            board = _board_deque.front();
+            _board_deque.pop_front();
+        }
+    }
+
+    if (!valid)
+        return;
+
+    // printf("thread num: %d, valid?\n", omp_get_thread_num());
+    if (checkIfAllFilled(board))
+    {
+        return;
+    }
+    // printf("thread num: %d, valid!\n", omp_get_thread_num());
+
+    Position empty_cell_pos = find_empty(board);
+
+    int row = empty_cell_pos.first;
+    int col = empty_cell_pos.second;
+
+    // fill in all possible numbers to the empty cell and then
+    // add the corresponding possible board of solution to the end of board deque
+    for (int num = board.get_min_value(); num <= board.get_max_value(); ++num)
+    {
+        if (isValid(board, num, empty_cell_pos))
+        {
+            board.set_board_data(row, col, num);
+#pragma omp critical
+            {
+                _board_deque.push_back(board);
+            }
+        }
+    }
+}
+
 void SudokuSolver_CudaBruteForce::bootstrap(SudokuBoardDeque &boardDeque, int indexOfRows)
 {
     // if no start boards in the board deque, then return
@@ -88,14 +139,17 @@ void SudokuSolver_CudaBruteForce::solve_kernel_1()
     _board_deque.push_back(_board);
 
     // ensure some level of bootstrapping
-    int num_bootstraps = omp_get_num_threads();
     int N = _board.get_board_size();
+    int num_bootstraps = get_num_threads() * 10;
+    printf("num bootstraps: %d\n", num_bootstraps);
 #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
     for (int i = 0; i < num_bootstraps; ++i)
     {
-        bootstrap();
+        bootstrap_openmp();
     }
+
     int numberOfBoards = _board_deque.size();
+
     _boards = (int *)malloc(numberOfBoards * N * N * sizeof(int));
     // For debugging
     // std::cout << "Number of Suodku boards on the board deque: " << numberOfBoards << "\n";

@@ -149,17 +149,15 @@ int main(int argc, char **argv)
 	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS || mode == MODES::CUDA_BRUTEFORCE)
 	{
 		omp_set_num_threads(NUM_THREADS);
-
-#pragma omp parallel
-		{
-#pragma omp single
-			{
-				std::cout << "Using " << termcolor::bright_red << omp_get_num_threads() << termcolor::reset
-						  << " OMP threads"
-						  << "\n";
-				solver->solve();
-			}
-		}
+		solver->set_num_threads(NUM_THREADS);
+		// #pragma omp parallel
+		// 		{
+		// #pragma omp single
+		// 			{
+		std::cout << "Using " << termcolor::bright_red << NUM_THREADS << termcolor::reset
+				  << " OMP threads"
+				  << "\n";
+		solver->solve();
 	}
 	else
 	{

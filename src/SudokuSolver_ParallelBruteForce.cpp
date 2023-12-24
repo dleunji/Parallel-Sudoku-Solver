@@ -136,7 +136,8 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 	_board_deque.push_back(_board);
 
 	// ensure some level of bootstrapping
-	int num_bootstraps = omp_get_num_threads();
+	int num_bootstraps = get_num_threads() * 10;
+	printf("num bootstraps: %d\n", num_bootstraps);
 #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
 	for (int i = 0; i < num_bootstraps; ++i)
 	{
@@ -151,15 +152,15 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 	// {
 	// 	std::cout << "BOARD-" << i << "\n";
 	// 	print_board(_board_deque[i]);
-	// 	std::cout << "*****" << "\n";
+	// 	std::cout << "*****"
+	// 			  << "\n";
 	// }
 
-	std::vector<SudokuSolver_SequentialBruteForce> solvers;
-
-#pragma omp parallel for schedule(static) default(none) shared(numberOfBoards, solvers)
+#pragma omp parallel for schedule(dynamic) default(none) shared(numberOfBoards)
 	for (int indexOfBoard = 0; indexOfBoard < numberOfBoards; ++indexOfBoard)
 	{
-		solvers.push_back(SudokuSolver_SequentialBruteForce(_board_deque[indexOfBoard], false));
+		// printf("current thread is solving... %d/%d in cpu %d\n", omp_get_thread_num(), omp_get_num_threads(), sched_getcpu());
+		SudokuSolver_SequentialBruteForce solver = SudokuSolver_SequentialBruteForce(_board_deque[indexOfBoard], false);
 
 		// Note: break statement is not allowed in OpenMP, all iterations must be processed.
 		// The trick is to set a flag to true when the condition is satisfied, and leave the remaining iterations no longer having any work to do.
@@ -168,14 +169,17 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 			continue;
 		}
 
-		solvers[indexOfBoard].set_mode(MODES::PARALLEL_BRUTEFORCE);
-
-		solvers[indexOfBoard].solve();
-
-		if (solvers[indexOfBoard].get_status() == true)
+		solver.set_mode(MODES::PARALLEL_BRUTEFORCE);
+		// printf("current thread is solving... %d/%d\n", omp_get_thread_num(), omp_get_num_threads());
+		solver.solve();
+		// printf("current thread ends... %d/%d\n", omp_get_thread_num(), omp_get_num_threads());
+		if (solver.get_status() == true)
 		{
-			_solved = true;
-			_solution = solvers[indexOfBoard].get_solution();
+#pragma omp critical
+			{
+				_solved = true;
+				_solution = solver.get_solution();
+			}
 		}
 	}
 }

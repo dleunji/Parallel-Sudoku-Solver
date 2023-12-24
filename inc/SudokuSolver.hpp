@@ -26,10 +26,12 @@ protected:
 	int _recursionDepth = 0;
 	int _current_num_empty_cells;
 	MODES _mode;
+	int NUM_THREADS = 1;
 
 public:
 	SudokuSolver(SudokuBoard &board);
-
+	void set_num_threads(int num_threads) { NUM_THREADS = num_threads; };
+	int get_num_threads() { return NUM_THREADS; };
 	// Checks if the Sudoku board is ALL filled up
 	bool checkIfAllFilled(const SudokuBoard &board) const;
 	bool checkIfRowFilled(const SudokuBoard &board, int indexOfRows) const;
