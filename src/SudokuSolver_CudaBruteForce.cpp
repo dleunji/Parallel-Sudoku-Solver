@@ -142,10 +142,10 @@ void SudokuSolver_CudaBruteForce::solve_kernel_1()
     int N = _board.get_board_size();
     int num_bootstraps = get_num_threads() * 10;
     printf("num bootstraps: %d\n", num_bootstraps);
-#pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
+    // #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
     for (int i = 0; i < num_bootstraps; ++i)
     {
-        bootstrap_openmp();
+        bootstrap();
     }
 
     int numberOfBoards = _board_deque.size();

@@ -137,11 +137,11 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 
 	// ensure some level of bootstrapping
 	int num_bootstraps = get_num_threads() * 10;
-	printf("num bootstraps: %d\n", num_bootstraps);
-#pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
+	// printf("num bootstraps: %d\n", num_bootstraps);
+	// #pragma omp parallel for schedule(static) default(none) shared(num_bootstraps)
 	for (int i = 0; i < num_bootstraps; ++i)
 	{
-		bootstrap_openmp();
+		bootstrap();
 	}
 
 	int numberOfBoards = _board_deque.size();
@@ -156,7 +156,7 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 	// 			  << "\n";
 	// }
 
-#pragma omp parallel for schedule(dynamic) default(none) shared(numberOfBoards)
+#pragma omp parallel for schedule(static) default(none) shared(numberOfBoards)
 	for (int indexOfBoard = 0; indexOfBoard < numberOfBoards; ++indexOfBoard)
 	{
 		// printf("current thread is solving... %d/%d in cpu %d\n", omp_get_thread_num(), omp_get_num_threads(), sched_getcpu());

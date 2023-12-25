@@ -33,20 +33,20 @@ __global__ void backtrack_kernel(int n, int N, int *boards, int *found)
   __syncthreads();
 
   int last_op = 0; // 0 - push stack, 1 - pop stack
-  if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
-  {
-    printf("top: %d\n", top);
-  }
+  // if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
+  // {
+  //   printf("top: %d\n", top);
+  // }
   while (*found == -1)
   {
     if (threadIdx.x == 0 && threadIdx.y == 0)
     {
       // position -> shared[0], number -> shared[1]
       int stack_num = stack[top];
-      if (blockIdx.x == 0)
-      {
-        printf("stack num : %d\n", stack_num);
-      }
+      // if (blockIdx.x == 0)
+      // {
+      //   printf("stack num : %d\n", stack_num);
+      // }
       shared[0] = stack_num % (N * N); // communicate nowp
       if (last_op == 0)
       {
@@ -75,10 +75,10 @@ __global__ void backtrack_kernel(int n, int N, int *boards, int *found)
     // find next valid number
     // nowp = the position to check in this board(block)
     int nowp = shared[0], i = shared[1];
-    if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
-    {
-      printf("CURR: i = %d nowp = %d\n", i, nowp);
-    }
+    // if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
+    // {
+    //   printf("CURR: i = %d nowp = %d\n", i, nowp);
+    // }
     if (nowp == -1)
       break;
 
@@ -92,15 +92,15 @@ __global__ void backtrack_kernel(int n, int N, int *boards, int *found)
         if (i == board_num)
           failed[i - 1] = 1;
     }
-    if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
-    {
-      printf("compare with board_num: %d\n", board_num);
-      for (int i = 0; i < N; i++)
-      {
-        printf("%d ", failed[i]);
-      }
-      printf("\n");
-    }
+    // if (blockIdx.x == 0 && threadIdx.x == 0 && threadIdx.y == 0)
+    // {
+    //   printf("compare with board_num: %d\n", board_num);
+    //   for (int i = 0; i < N; i++)
+    //   {
+    //     printf("%d ", failed[i]);
+    //   }
+    //   printf("\n");
+    // }
     // As the result, `i`  = has been tried and failed at this position
     __syncthreads();
 
@@ -117,10 +117,10 @@ __global__ void backtrack_kernel(int n, int N, int *boards, int *found)
         stack[top++] = i * N * N + nowp;
         shared[3] = i;
         last_op = 0;
-        if (blockIdx.x == 0)
-        {
-          printf("PUSH: i = %d nowp = %d\n", i, nowp);
-        }
+        // if (blockIdx.x == 0)
+        // {
+        //   printf("PUSH: i = %d nowp = %d\n", i, nowp);
+        // }
       }
       else
       {
@@ -131,10 +131,10 @@ __global__ void backtrack_kernel(int n, int N, int *boards, int *found)
         stack[top--] = nowp;
         shared[3] = 0;
         last_op = 1;
-        if (blockIdx.x == 0)
-        {
-          printf("PUSH: %d\n", nowp);
-        }
+        // if (blockIdx.x == 0)
+        // {
+        //   printf("PUSH: %d\n", nowp);
+        // }
       }
     }
     __syncthreads();
