@@ -4,8 +4,6 @@
 #include "SudokuSolver_SequentialBacktracking.hpp"
 #include "SudokuSolver_SequentialBruteForce.hpp"
 #include "SudokuSolver_ParallelBruteForce.hpp"
-#include "SudokuSolver_SequentialDLX.hpp"
-#include "SudokuSolver_ParallelDLX.hpp"
 #include "SudokuSolver_SequentialForwardChecking.hpp"
 #include "SudokuSolver_CudaBruteForce.hpp"
 
@@ -31,12 +29,6 @@ std::unique_ptr<SudokuSolver> CreateSudokuSolver(MODES mode, SudokuBoard &board)
 	case MODES::PARALLEL_BRUTEFORCE:
 		return std::make_unique<SudokuSolver_ParallelBruteForce>(board);
 
-	case MODES::SEQUENTIAL_DANCINGLINKS:
-		return std::make_unique<SudokuSolver_SequentialDLX>(board);
-
-	case MODES::PARALLEL_DANCINGLINKS:
-		return std::make_unique<SudokuSolver_ParallelDLX>(board);
-
 	case MODES::SEQUENTIAL_FORWARDCHECKING:
 		return std::make_unique<SudokuSolver_SequentialForwardChecking>(board);
 
@@ -52,13 +44,9 @@ std::unique_ptr<SudokuSolver> CreateSudokuSolver(MODES mode, SudokuBoard &board)
 				  << "\n";
 		std::cerr << "		- 2: parallel mode with brute force algorithm"
 				  << "\n";
-		std::cerr << "		- 3: sequential mode with DLX algorithm"
+		std::cerr << "		- 3: sequential mode with forward checking algorithm"
 				  << "\n";
-		std::cerr << "		- 4: parallel mode with DLX algorithm"
-				  << "\n";
-		std::cerr << "		- 5: sequential mode with forward checking algorithm"
-				  << "\n";
-		std::cerr << "		- 6: CUDA mode with brute force algorithm"
+		std::cerr << "		- 4: CUDA mode with brute force algorithm"
 				  << "\n";
 		std::cerr << "Please try again." << termcolor::reset << "\n";
 		exit(-1);
@@ -95,13 +83,9 @@ int main(int argc, char **argv)
 				  << "\n";
 		std::cerr << "			- 2: parallel mode with brute force algorithm"
 				  << "\n";
-		std::cerr << "			- 3: sequential mode with DLX algorithm"
+		std::cerr << "			- 3: sequential mode with forward checking algorithm"
 				  << "\n";
-		std::cerr << "			- 4: parallel mode with DLX algorithm"
-				  << "\n";
-		std::cerr << "			- 5: sequential mode with forward checking algorithm"
-				  << "\n";
-		std::cerr << "			- 6: CUDA mode with brute force algorithm"
+		std::cerr << "			- 4: CUDA mode with brute force algorithm"
 				  << "\n";
 		std::cerr << "		2. <NUM_THREADS>: "
 				  << "\n";
@@ -124,7 +108,7 @@ int main(int argc, char **argv)
 
 	int NUM_THREADS = 2;
 	int WRITE_TO_SOLUTION_TXT = 0;
-	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS || mode == MODES::CUDA_BRUTEFORCE)
+	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::CUDA_BRUTEFORCE)
 	{
 		NUM_THREADS = (argc >= 4) ? std::stoi(argv[3]) : 2;
 		WRITE_TO_SOLUTION_TXT = (argc >= 5) ? std::stoi(argv[4]) : 0;
@@ -146,7 +130,7 @@ int main(int argc, char **argv)
 #endif
 
 	auto solver = CreateSudokuSolver(mode, board);
-	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::PARALLEL_DANCINGLINKS || mode == MODES::CUDA_BRUTEFORCE)
+	if (mode == MODES::PARALLEL_BRUTEFORCE || mode == MODES::CUDA_BRUTEFORCE)
 	{
 		omp_set_num_threads(NUM_THREADS);
 		solver->set_num_threads(NUM_THREADS);

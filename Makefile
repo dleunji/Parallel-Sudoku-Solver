@@ -28,11 +28,11 @@ DEPENDENCIES = \
   ./src/SudokuSolver_SequentialBacktracking.cpp \
   ./src/SudokuSolver_SequentialBruteForce.cpp \
   ./src/SudokuSolver_ParallelBruteForce.cpp \
-  ./src/Node.cpp \
-  ./src/SudokuSolver_SequentialDLX.cpp \
-  ./src/SudokuSolver_ParallelDLX.cpp \
   ./src/SudokuSolver_SequentialForwardChecking.cpp \
-  ./src/SudokuSolver_CudaBruteForce.cpp
+  ./src/SudokuSolver_CudaBruteForce.cpp \
+  ./src/SudokuSolver_NestedBruteForce.cpp \
+  ./src/SudokuSolver_NestedBacktracking.cpp
+
 CUDA_DEPENDENCIES = \
   ./cuda_src/SudokuSolver_CudaBruteForce_kernel.cu
 

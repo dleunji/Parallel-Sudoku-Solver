@@ -156,7 +156,7 @@ void SudokuSolver_ParallelBruteForce::solve_kernel_1()
 	// 			  << "\n";
 	// }
 
-#pragma omp parallel for schedule(static) default(none) shared(numberOfBoards)
+#pragma omp parallel for schedule(guided, 32) default(none) shared(numberOfBoards, _solved, _board_deque)
 	for (int indexOfBoard = 0; indexOfBoard < numberOfBoards; ++indexOfBoard)
 	{
 		// printf("current thread is solving... %d/%d in cpu %d\n", omp_get_thread_num(), omp_get_num_threads(), sched_getcpu());

@@ -30,9 +30,6 @@ public:
     }
 
     void solve_kernel_1();
-    void solve_kernel_2();
-    void solve_bruteforce_seq(SudokuBoard &board, int row, int col);
-    void solve_bruteforce_par(SudokuBoard &board, int row, int col);
 };
 
 #endif // SUDOKUSOLVER_CUDABRUTEFORCE_HPP

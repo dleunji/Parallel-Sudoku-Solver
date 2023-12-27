@@ -11,8 +11,6 @@ enum class MODES
 	SEQUENTIAL_BACKTRACKING,	// Sequential mode using backtracking algorithm
 	SEQUENTIAL_BRUTEFORCE,		// Sequential mode using brute force algorithm
 	PARALLEL_BRUTEFORCE,		// OpenMP mode using brute force algorithm
-	SEQUENTIAL_DANCINGLINKS,	// Sequential mode using dancing links algorithm
-	PARALLEL_DANCINGLINKS,		// OpenMP mode using dancing links algorithm
 	SEQUENTIAL_FORWARDCHECKING, // Sequential mode using forward checking algorithm
 	CUDA_BRUTEFORCE				// CUDA mode using brute force algorithm
 };
